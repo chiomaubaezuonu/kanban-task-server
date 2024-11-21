@@ -21,8 +21,27 @@ app.get('/projects', (req, res) => {
     ProjectModel.find()
         .then(result => res.json(result))
 })
-app.post('/', (req, res) => {
+app.post('/projects', async (req, res) => {
+    try {
+        //Extract project data from the request body
+        const { boards } = req.body
 
+        //validate the incoming data 
+        if (!boards) {
+            return res.status(400).json({ error: "Invalid input" });
+        }
+
+        // Create a new project document in MongoDB
+        const newProject = await ProjectModel.create({ boards });
+
+        // Respond with the created project
+        res.status(201).json(newProject)
+
+    }
+    catch (error) {
+        console.error("Error creating project:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 })
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`)
